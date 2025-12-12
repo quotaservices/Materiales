@@ -1,12 +1,16 @@
 {
   "guia-blockchain": {
-    "title": "Sobre actores económicos",
+    "title": "Guía Blockchain",
+    "description": "Conceptos, casos de uso y fundamentos.",
+    "tags": ["blockchain", "intro"],
     "driveUrl": "https://drive.google.com/file/d/1dAhOpqrFUXJQGz0amT7c01y34kpXtFwV/view?usp=sharing",
-    "fileName": "Nueva ley diciembre.pdf"
+    "fileName": "guia-blockchain.pdf"
   },
   "seguridad-smartcontracts": {
-    "title": "Otro documento",
+    "title": "Seguridad en Smart Contracts",
+    "description": "Buenas prácticas y errores comunes.",
+    "tags": ["solidity", "security", "audit"],
     "driveUrl": "https://drive.google.com/file/d/1Cq16WbE9YLHqy3IgGvL-zWV7ukyIWiDJ/view?usp=sharing",
-    "fileName": "Sobre actores económicos.pdf"
+    "fileName": "seguridad-smartcontracts.pdf"
   }
 }
