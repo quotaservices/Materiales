@@ -1,0 +1,65 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Descargando…</title>
+
+  <!-- GA4 -->
+  <script async src="https://www.googletagmanager.com/gtag/js?id=G-V9KNX9QWD2"></script>
+  <script>
+    window.dataLayer = window.dataLayer || [];
+    function gtag(){dataLayer.push(arguments);}
+    gtag('js', new Date());
+    gtag('config', 'G-V9KNX9QWD2', { send_page_view: true });
+  </script>
+</head>
+<body>
+  <p id="msg">Preparando descarga…</p>
+
+  <script>
+    const GA_ID = "G-V9KNX9QWD2"; // (debe coincidir, por claridad)
+    const params = new URLSearchParams(location.search);
+    const key = params.get("m"); // material key
+    const msg = document.getElementById("msg");
+
+    function safeText(s){ return (s||"").replace(/[<>]/g,""); }
+
+    async function main(){
+      if(!key){
+        msg.textContent = "Falta el parámetro ?m= (material).";
+        return;
+      }
+
+      let catalog;
+      try{
+        const res = await fetch("../materials.json", { cache: "no-store" });
+        catalog = await res.json();
+      }catch(e){
+        msg.textContent = "No se pudo cargar el catálogo (materials.json).";
+        return;
+      }
+
+      const item = catalog[key];
+      if(!item || !item.driveUrl){
+        msg.textContent = "Material no encontrado: " + safeText(key);
+        return;
+      }
+
+      // Evento GA4 (1 solo evento para todos; separas por "material")
+      gtag("event", "download_pdf", {
+        material: key,
+        file_name: item.fileName || "",
+        title: item.title || ""
+      });
+
+      msg.textContent = "Redirigiendo a: " + (item.title || key) + " …";
+
+      // Redirección (pequeño delay para que salga el hit)
+      setTimeout(() => { location.href = item.driveUrl; }, 700);
+    }
+
+    main();
+  </script>
+</body>
+</html>
