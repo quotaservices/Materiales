@@ -87,7 +87,7 @@
       }else if(mode === "za"){
         copy.sort((a,b)=> (b.title||"").localeCompare(a.title||"", "es"));
       }else if(mode === "new"){
-        // Si agregas "date": "2025-12-12" en materials.json, ordena por fecha.
+        // Si agregas "date": "2025-12-12" en materiales.json, ordena por fecha.
         copy.sort((a,b)=> (b.date||"").localeCompare(a.date||""));
       }
       return copy;
@@ -137,7 +137,7 @@
 
     async function init(){
       try{
-        const res = await fetch("./materials.json", { cache: "no-store" });
+        const res = await fetch("./materiales.json", { cache: "no-store" });
         const data = await res.json();
 
         items = Object.entries(data).map(([key, v]) => ({
@@ -153,16 +153,16 @@
         apply();
 
       }catch(e){
-        count.textContent = "Error cargando materials.json";
+        count.textContent = "Error cargando materiales.json";
         empty.style.display = "block";
-        empty.textContent = "No se pudo cargar el catálogo. Revisa que materials.json exista y sea válido.";
+        empty.textContent = "No se pudo cargar el catálogo. Revisa que materiales.json exista y sea válido.";
       }
     }
 
     q.addEventListener("input", () => {
       // (Opcional) track de búsqueda
       if(typeof gtag === "function"){
-        gtag("event", "search_materials", { q: q.value.slice(0, 80) });
+        gtag("event", "search_materiales", { q: q.value.slice(0, 80) });
       }
       apply();
     });
