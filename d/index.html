@@ -32,10 +32,10 @@
 
       let catalog;
       try{
-        const res = await fetch("../materials.json", { cache: "no-store" });
+        const res = await fetch("../materiales.json", { cache: "no-store" });
         catalog = await res.json();
       }catch(e){
-        msg.textContent = "No se pudo cargar materials.json.";
+        msg.textContent = "No se pudo cargar materiales.json.";
         return;
       }
 
