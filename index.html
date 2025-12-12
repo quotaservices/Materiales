@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <title>Descargando PDF...</title>
+
+  <!-- Google Analytics GA4 -->
+  <script async src="https://www.googletagmanager.com/gtag/js?id=G-V9KNX9QWD2"></script>
+  <script>
+    window.dataLayer = window.dataLayer || [];
+    function gtag(){dataLayer.push(arguments);}
+    gtag('js', new Date());
+
+    gtag('config', 'G-V9KNX9QWD2');
+
+    // Evento de descarga
+    gtag('event', 'download_pdf', {
+      file_name: 'material.pdf'
+    });
+
+    // Redirección a Google Drive
+    setTimeout(() => {
+      window.location.href = "https://drive.google.com/file/d/TU_ID_DE_ARCHIVO/view";
+    }, 800);
+  </script>
+</head>
+<body>
+  <p>Tu descarga comenzará en unos segundos...</p>
+</body>
+</html>
