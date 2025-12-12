@@ -1,30 +1,175 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="es">
 <head>
-  <meta charset="UTF-8">
-  <title>Descargando PDF...</title>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Biblioteca de Materiales</title>
 
-  <!-- Google Analytics GA4 -->
+  <!-- GA4 (opcional pero recomendado para medir visitas/búsquedas) -->
   <script async src="https://www.googletagmanager.com/gtag/js?id=G-V9KNX9QWD2"></script>
   <script>
     window.dataLayer = window.dataLayer || [];
     function gtag(){dataLayer.push(arguments);}
     gtag('js', new Date());
-
-    gtag('config', 'G-V9KNX9QWD2');
-
-    // Evento de descarga
-    gtag('event', 'download_pdf', {
-      file_name: 'material.pdf'
-    });
-
-    // Redirección a Google Drive
-    setTimeout(() => {
-      window.location.href = "https://drive.google.com/file/d/TU_ID_DE_ARCHIVO/view";
-    }, 800);
+    gtag('config', 'G-V9KNX9QWD2', { send_page_view: true });
   </script>
+
+  <style>
+    body{ font-family: system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif; margin: 24px; line-height: 1.35; }
+    header{ display:flex; gap:12px; flex-wrap:wrap; align-items:center; justify-content:space-between; }
+    h1{ margin:0; font-size: 22px; }
+    .search{ flex:1; min-width: 260px; display:flex; gap:10px; align-items:center; }
+    input{ width:100%; padding:10px 12px; border:1px solid #ccc; border-radius:10px; font-size:14px; }
+    .meta{ color:#555; font-size:13px; }
+    .grid{ display:grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 14px; margin-top: 16px; }
+    .card{ border:1px solid #ddd; border-radius:14px; padding:14px; box-shadow: 0 1px 2px rgba(0,0,0,.04); }
+    .title{ font-weight: 700; margin:0 0 6px; }
+    .desc{ margin:0 0 10px; color:#444; font-size:14px; }
+    .tags{ display:flex; flex-wrap:wrap; gap:6px; margin: 0 0 12px; padding:0; list-style:none; }
+    .tag{ font-size:12px; border:1px solid #ddd; padding:4px 8px; border-radius:999px; color:#333; }
+    .actions{ display:flex; gap:10px; flex-wrap:wrap; }
+    a.btn{ display:inline-block; text-decoration:none; border:1px solid #222; padding:9px 12px; border-radius:10px; font-size:14px; }
+    a.btn.secondary{ border-color:#bbb; color:#222; }
+    .empty{ margin-top: 16px; color:#666; }
+    .toprow{ display:flex; gap:12px; align-items:center; flex-wrap:wrap; }
+    select{ padding:10px 12px; border:1px solid #ccc; border-radius:10px; font-size:14px; }
+  </style>
 </head>
 <body>
-  <p>Tu descarga comenzará en unos segundos...</p>
+  <header>
+    <div class="toprow">
+      <h1>📚 Biblioteca de Materiales</h1>
+      <div class="meta" id="count">Cargando…</div>
+    </div>
+
+    <div class="search">
+      <input id="q" type="search" placeholder="Buscar por título, descripción o tags…" autocomplete="off" />
+      <select id="sort" title="Ordenar">
+        <option value="az">A–Z</option>
+        <option value="za">Z–A</option>
+        <option value="new">Más recientes (si usas campo date)</option>
+      </select>
+    </div>
+  </header>
+
+  <div class="grid" id="grid"></div>
+  <div class="empty" id="empty" style="display:none;">No hay resultados con esa búsqueda.</div>
+
+  <script>
+    const grid = document.getElementById("grid");
+    const empty = document.getElementById("empty");
+    const q = document.getElementById("q");
+    const count = document.getElementById("count");
+    const sortSel = document.getElementById("sort");
+
+    let items = [];
+
+    function norm(s){
+      return (s||"")
+        .toString()
+        .toLowerCase()
+        .normalize("NFD").replace(/[\u0300-\u036f]/g, "");
+    }
+
+    function itemToText(it){
+      return norm([
+        it.key, it.title, it.description,
+        (it.tags||[]).join(" ")
+      ].join(" "));
+    }
+
+    function sortItems(arr){
+      const mode = sortSel.value;
+      const copy = [...arr];
+
+      if(mode === "az"){
+        copy.sort((a,b)=> (a.title||"").localeCompare(b.title||"", "es"));
+      }else if(mode === "za"){
+        copy.sort((a,b)=> (b.title||"").localeCompare(a.title||"", "es"));
+      }else if(mode === "new"){
+        // Si agregas "date": "2025-12-12" en materials.json, ordena por fecha.
+        copy.sort((a,b)=> (b.date||"").localeCompare(a.date||""));
+      }
+      return copy;
+    }
+
+    function render(list){
+      grid.innerHTML = "";
+      empty.style.display = list.length ? "none" : "block";
+      count.textContent = `${list.length} material(es)`;
+
+      for(const it of list){
+        const card = document.createElement("div");
+        card.className = "card";
+
+        const tags = (it.tags||[]).map(t => `<li class="tag">${t}</li>`).join("");
+
+        // Link de descarga con tracking (y conserva UTMs si llegan)
+        const url = new URL(location.href);
+        url.pathname = url.pathname.replace(/\/index\.html?$/,"/") + "d/";
+        url.searchParams.set("m", it.key);
+
+        card.innerHTML = `
+          <p class="title">${it.title || it.key}</p>
+          <p class="desc">${it.description || ""}</p>
+          <ul class="tags">${tags}</ul>
+          <div class="actions">
+            <a class="btn" href="${url.toString()}">Descargar</a>
+            <a class="btn secondary" href="${it.driveUrl}" target="_blank" rel="noopener">Ver en Drive</a>
+          </div>
+        `;
+
+        grid.appendChild(card);
+      }
+    }
+
+    function apply(){
+      const term = norm(q.value.trim());
+      let filtered = items;
+
+      if(term){
+        filtered = items.filter(it => itemToText(it).includes(term));
+      }
+
+      filtered = sortItems(filtered);
+      render(filtered);
+    }
+
+    async function init(){
+      try{
+        const res = await fetch("./materials.json", { cache: "no-store" });
+        const data = await res.json();
+
+        items = Object.entries(data).map(([key, v]) => ({
+          key,
+          title: v.title || key,
+          description: v.description || "",
+          tags: Array.isArray(v.tags) ? v.tags : [],
+          driveUrl: v.driveUrl || "",
+          fileName: v.fileName || "",
+          date: v.date || "" // opcional
+        }));
+
+        apply();
+
+      }catch(e){
+        count.textContent = "Error cargando materials.json";
+        empty.style.display = "block";
+        empty.textContent = "No se pudo cargar el catálogo. Revisa que materials.json exista y sea válido.";
+      }
+    }
+
+    q.addEventListener("input", () => {
+      // (Opcional) track de búsqueda
+      if(typeof gtag === "function"){
+        gtag("event", "search_materials", { q: q.value.slice(0, 80) });
+      }
+      apply();
+    });
+
+    sortSel.addEventListener("change", apply);
+
+    init();
+  </script>
 </body>
 </html>
